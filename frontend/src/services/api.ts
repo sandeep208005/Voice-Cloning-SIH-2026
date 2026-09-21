@@ -1,0 +1,223 @@
+import {
+  DashboardStatistics,
+  RecentAnalysisItem,
+  AnalysisDetail,
+  ChallengeGenerateResponse,
+  ChallengeSubmitResponse,
+  ModelInfo,
+  SystemHealth,
+  User,
+  ProjectOutputsResponse,
+} from '../types';
+
+const API_BASE = '/api/v1';
+
+function getAuthHeaders(): HeadersInit {
+  const token = localStorage.getItem('deepshield_token');
+  const headers: HeadersInit = {};
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+  return headers;
+}
+
+function parseErrorDetail(errData: any, fallback: string): string {
+  if (!errData) return fallback;
+  if (typeof errData === 'string') return errData;
+  if (typeof errData.detail === 'string') return errData.detail;
+  if (Array.isArray(errData.detail)) {
+    return errData.detail.map((item: any) => item.msg || (typeof item === 'string' ? item : JSON.stringify(item))).join(', ');
+  }
+  if (typeof errData.detail === 'object' && errData.detail !== null) {
+    return JSON.stringify(errData.detail);
+  }
+  if (errData.message && typeof errData.message === 'string') return errData.message;
+  return fallback;
+}
+
+export const api = {
+  // Authentication
+  async register(email: string, password: string, fullName: string, role = 'analyst'): Promise<{ access_token: string; user: User }> {
+    const res = await fetch(`${API_BASE}/auth/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password, full_name: fullName, role }),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(parseErrorDetail(err, 'Registration failed.'));
+    }
+    const data = await res.json();
+    localStorage.setItem('deepshield_token', data.access_token);
+    return data;
+  },
+
+  async login(email: string, password: string): Promise<{ access_token: string; user: User }> {
+    const res = await fetch(`${API_BASE}/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(parseErrorDetail(err, 'Invalid email or password.'));
+    }
+    const data = await res.json();
+    localStorage.setItem('deepshield_token', data.access_token);
+    return data;
+  },
+
+  async getMe(): Promise<User | null> {
+    const token = localStorage.getItem('deepshield_token');
+    if (!token) return null;
+    try {
+      const res = await fetch(`${API_BASE}/auth/me`, {
+        headers: getAuthHeaders(),
+      });
+      if (!res.ok) {
+        localStorage.removeItem('deepshield_token');
+        return null;
+      }
+      return await res.json();
+    } catch {
+      return null;
+    }
+  },
+
+  logout() {
+    localStorage.removeItem('deepshield_token');
+  },
+
+  // Dashboard
+  async getDashboardStatistics(): Promise<DashboardStatistics> {
+    const res = await fetch(`${API_BASE}/dashboard/statistics`, {
+      headers: getAuthHeaders(),
+    });
+    if (!res.ok) throw new Error('Failed to load dashboard statistics.');
+    return res.json();
+  },
+
+  async getRecentAnalyses(): Promise<RecentAnalysisItem[]> {
+    const res = await fetch(`${API_BASE}/dashboard/recent`, {
+      headers: getAuthHeaders(),
+    });
+    if (!res.ok) throw new Error('Failed to load recent analyses.');
+    return res.json();
+  },
+
+  // Forensic Analysis Uploads
+  async uploadMedia(mediaType: 'audio' | 'image' | 'video', file: File): Promise<AnalysisDetail> {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const res = await fetch(`${API_BASE}/analyses/${mediaType}`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: formData,
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(parseErrorDetail(err, `Analysis of ${mediaType} failed.`));
+    }
+    return res.json();
+  },
+
+  // Analysis History & Retrieval
+  async listAnalyses(params: {
+    page?: number;
+    limit?: number;
+    media_type?: string;
+    risk_level?: string;
+    status?: string;
+    search?: string;
+    sort_by?: string;
+  } = {}): Promise<{ items: any[]; total: number; page: number; total_pages: number }> {
+    const query = new URLSearchParams();
+    if (params.page) query.set('page', params.page.toString());
+    if (params.limit) query.set('limit', params.limit.toString());
+    if (params.media_type) query.set('media_type', params.media_type);
+    if (params.risk_level) query.set('risk_level', params.risk_level);
+    if (params.status) query.set('status', params.status);
+    if (params.search) query.set('search', params.search);
+    if (params.sort_by) query.set('sort_by', params.sort_by);
+
+    const res = await fetch(`${API_BASE}/analyses?${query.toString()}`, {
+      headers: getAuthHeaders(),
+    });
+    if (!res.ok) throw new Error('Failed to fetch analyses list.');
+    return res.json();
+  },
+
+  async getAnalysisDetail(id: string): Promise<AnalysisDetail> {
+    const res = await fetch(`${API_BASE}/analyses/${id}`, {
+      headers: getAuthHeaders(),
+    });
+    if (!res.ok) throw new Error(`Analysis with ID ${id} not found.`);
+    return res.json();
+  },
+
+  async deleteAnalysis(id: string): Promise<void> {
+    const res = await fetch(`${API_BASE}/analyses/${id}`, {
+      method: 'DELETE',
+      headers: getAuthHeaders(),
+    });
+    if (!res.ok) throw new Error('Failed to purge analysis record.');
+  },
+
+  // Dynamic Challenge-Response
+  async generateChallenge(): Promise<ChallengeGenerateResponse> {
+    const res = await fetch(`${API_BASE}/verification/challenge`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(parseErrorDetail(err, 'Failed to generate challenge.'));
+    }
+    return res.json();
+  },
+
+  async submitChallenge(sessionToken: string, audioBlob: Blob): Promise<ChallengeSubmitResponse> {
+    const formData = new FormData();
+    formData.append('session_token', sessionToken);
+    const ext = audioBlob.type.includes('wav') ? 'wav' : (audioBlob.type.includes('ogg') ? 'ogg' : 'webm');
+    formData.append('file', audioBlob, `response.${ext}`);
+
+    const res = await fetch(`${API_BASE}/verification/submit`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: formData,
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(parseErrorDetail(err, 'Challenge verification failed.'));
+    }
+    return res.json();
+  },
+
+  // Models Status & Health
+  async getModelsStatus(): Promise<ModelInfo[]> {
+    const res = await fetch(`${API_BASE}/models`, {
+      headers: getAuthHeaders(),
+    });
+    if (!res.ok) throw new Error('Failed to fetch model registry status.');
+    return res.json();
+  },
+
+  async getHealth(): Promise<SystemHealth> {
+    const res = await fetch(`${API_BASE}/health`);
+    if (!res.ok) throw new Error('System health check failed.');
+    return res.json();
+  },
+
+  // Project Outputs & Benchmark Telemetry
+  async getProjectOutputs(): Promise<ProjectOutputsResponse> {
+    const res = await fetch(`${API_BASE}/dashboard/project-outputs`, {
+      headers: getAuthHeaders(),
+    });
+    if (!res.ok) throw new Error('Failed to fetch project outputs report.');
+    return res.json();
+  },
+};
