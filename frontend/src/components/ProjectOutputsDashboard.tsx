@@ -38,16 +38,22 @@ export const ProjectOutputsDashboard: React.FC<ProjectOutputsDashboardProps> = (
     loadOutputs();
   }, []);
 
-  const loadOutputs = async () => {
+  const loadOutputs = async (retryCount = 2) => {
     setLoading(true);
     setError(null);
     try {
       const res = await api.getProjectOutputs();
       setData(res);
-    } catch (err: any) {
-      setError(err.message || 'Failed to load project outputs.');
-    } finally {
       setLoading(false);
+    } catch (err: any) {
+      if (retryCount > 0) {
+        setTimeout(() => {
+          loadOutputs(retryCount - 1);
+        }, 1000);
+      } else {
+        setError(err.message || 'Failed to load project outputs.');
+        setLoading(false);
+      }
     }
   };
 
@@ -100,7 +106,7 @@ export const ProjectOutputsDashboard: React.FC<ProjectOutputsDashboardProps> = (
           <AlertTriangle size={18} />
           <span>{error || 'Failed to initialize project output telemetry.'}</span>
         </div>
-        <button onClick={loadOutputs} className="btn-primary" style={{ marginTop: '16px' }}>
+        <button onClick={() => loadOutputs()} className="btn-primary" style={{ marginTop: '16px' }}>
           Retry Loading
         </button>
       </div>
