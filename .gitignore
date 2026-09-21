@@ -28,6 +28,8 @@ yarn-error.log*
 deepshield.db
 uploads/*
 !uploads/.gitkeep
+backend/uploads/*
+!backend/uploads/.gitkeep
 
 # IDE & OS
 .vscode/
