@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Navigation } from './components/Navigation';
 import { DashboardView } from './components/DashboardView';
 import { ForensicLabView } from './components/ForensicLabView';
@@ -9,6 +9,7 @@ import { ModelsView } from './components/ModelsView';
 import { ProjectOutputsDashboard } from './components/ProjectOutputsDashboard';
 import { AuthModal } from './components/AuthModal';
 import { api } from './services/api';
+import { AUDITED_DASHBOARD_SNAPSHOT } from './data/auditedProjectOutputs';
 import { DashboardStatistics, RecentAnalysisItem, AnalysisDetail, User, SystemHealth } from './types';
 
 export const App: React.FC = () => {
@@ -18,10 +19,13 @@ export const App: React.FC = () => {
   const [health, setHealth] = useState<SystemHealth | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [loadingStats, setLoadingStats] = useState(true);
+  const [dashboardError, setDashboardError] = useState<string | null>(null);
+  const [isOfflineSnapshot, setIsOfflineSnapshot] = useState(false);
   const [selectedAnalysisDetail, setSelectedAnalysisDetail] = useState<AnalysisDetail | null>(null);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
 
-  const fetchDashboardData = async () => {
+  const fetchDashboardData = useCallback(async () => {
+    setLoadingStats(true);
     try {
       const [statsData, recentData, healthData] = await Promise.all([
         api.getDashboardStatistics(),
@@ -30,12 +34,23 @@ export const App: React.FC = () => {
       ]);
       setStats(statsData);
       setRecent(recentData);
-      if (healthData) setHealth(healthData);
-    } catch (err) {
-      console.error('Error fetching dashboard telemetry:', err);
+      setHealth(healthData);
+      setDashboardError(null);
+      setIsOfflineSnapshot(false);
+    } catch (err: any) {
+      console.warn('Dashboard telemetry fetch failed:', err);
+      setDashboardError(err.message || 'Unable to connect to DeepShield AI backend.');
+      setHealth(null);
     } finally {
       setLoadingStats(false);
     }
+  }, []);
+
+  const handleLoadOfflineSnapshot = () => {
+    setStats(AUDITED_DASHBOARD_SNAPSHOT.stats);
+    setRecent(AUDITED_DASHBOARD_SNAPSHOT.recent);
+    setIsOfflineSnapshot(true);
+    setDashboardError(null);
   };
 
   useEffect(() => {
@@ -44,10 +59,13 @@ export const App: React.FC = () => {
 
     // Periodic telemetry refresh
     const interval = setInterval(() => {
-      fetchDashboardData();
+      // Only poll automatically if not manually inspecting offline snapshot
+      if (!isOfflineSnapshot) {
+        fetchDashboardData();
+      }
     }, 15000);
     return () => clearInterval(interval);
-  }, []);
+  }, [fetchDashboardData, isOfflineSnapshot]);
 
   const handleSelectAnalysis = async (id: string) => {
     try {
@@ -74,6 +92,7 @@ export const App: React.FC = () => {
         onOpenAuth={() => setIsAuthOpen(true)}
         onLogout={handleLogout}
         health={health}
+        onRefreshHealth={fetchDashboardData}
       />
 
       {/* Main View Area */}
@@ -83,6 +102,10 @@ export const App: React.FC = () => {
             stats={stats}
             recent={recent}
             loading={loadingStats}
+            error={dashboardError}
+            isOfflineSnapshot={isOfflineSnapshot}
+            onRetry={fetchDashboardData}
+            onLoadSnapshot={handleLoadOfflineSnapshot}
             onNavigateToLab={() => { setSelectedAnalysisDetail(null); setActiveTab('lab'); }}
             onNavigateToOutputs={() => setActiveTab('outputs')}
             onSelectAnalysis={handleSelectAnalysis}

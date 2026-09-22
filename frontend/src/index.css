@@ -117,6 +117,10 @@ body {
   box-shadow: 0 0 8px var(--crimson);
   animation: pulse-danger 1.5s infinite;
 }
+.status-led-gray {
+  background: #64748B;
+  box-shadow: none;
+}
 
 @keyframes pulse-danger {
   0%, 100% { opacity: 1; transform: scale(1); }

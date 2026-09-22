@@ -11,7 +11,10 @@ import {
   Clock, 
   FileSearch,
   Radar,
-  Award
+  Award,
+  RefreshCw,
+  WifiOff,
+  Server
 } from 'lucide-react';
 import { DashboardStatistics, RecentAnalysisItem } from '../types';
 
@@ -19,6 +22,10 @@ interface DashboardViewProps {
   stats: DashboardStatistics | null;
   recent: RecentAnalysisItem[];
   loading: boolean;
+  error?: string | null;
+  isOfflineSnapshot?: boolean;
+  onRetry?: () => void;
+  onLoadSnapshot?: () => void;
   onNavigateToLab: () => void;
   onSelectAnalysis: (id: string) => void;
   onNavigateToOutputs?: () => void;
@@ -28,15 +35,94 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   stats,
   recent,
   loading,
+  error,
+  isOfflineSnapshot,
+  onRetry,
+  onLoadSnapshot,
   onNavigateToLab,
   onSelectAnalysis,
   onNavigateToOutputs,
 }) => {
-  if (loading || !stats) {
+  if (loading) {
     return (
-      <div style={{ padding: '32px', textAlign: 'center', color: 'var(--text-secondary)' }}>
-        <div style={{ display: 'inline-block', width: '32px', height: '32px', border: '3px solid var(--border-subtle)', borderTopColor: 'var(--cyan)', borderRadius: '50%', animation: 'radar-sweep 1s linear infinite' }} />
-        <p style={{ marginTop: '16px', fontFamily: 'var(--font-mono)', fontSize: '13px' }}>QUERYING DATABASE TELEMETRY...</p>
+      <div style={{ padding: '48px 32px', textAlign: 'center', color: 'var(--text-secondary)' }}>
+        <div style={{ display: 'inline-block', width: '36px', height: '36px', border: '3px solid var(--border-subtle)', borderTopColor: 'var(--cyan)', borderRadius: '50%', animation: 'radar-sweep 1s linear infinite' }} />
+        <p style={{ marginTop: '16px', fontFamily: 'var(--font-mono)', fontSize: '13px', letterSpacing: '0.05em' }}>QUERYING DATABASE TELEMETRY...</p>
+      </div>
+    );
+  }
+
+  if (!stats) {
+    return (
+      <div style={{ padding: '32px', maxWidth: '800px', margin: '0 auto' }}>
+        <div className="glass-panel" style={{
+          padding: '32px',
+          border: '1px solid rgba(255, 46, 91, 0.3)',
+          background: 'rgba(255, 46, 91, 0.04)',
+          borderRadius: '8px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '20px',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+            <div style={{
+              width: '44px',
+              height: '44px',
+              borderRadius: '8px',
+              background: 'rgba(255, 46, 91, 0.12)',
+              border: '1px solid rgba(255, 46, 91, 0.35)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}>
+              <WifiOff size={24} color="var(--crimson)" />
+            </div>
+            <div>
+              <h2 style={{ fontSize: '18px', fontWeight: 700, color: '#FFFFFF', letterSpacing: '-0.02em' }}>
+                Backend Telemetry Disconnected
+              </h2>
+              <p style={{ fontSize: '12px', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', marginTop: '2px' }}>
+                STATUS: UNREACHABLE · TARGET: {window.location.host}
+              </p>
+            </div>
+          </div>
+
+          <div style={{
+            padding: '14px 16px',
+            background: 'rgba(11, 14, 21, 0.8)',
+            borderRadius: '6px',
+            border: '1px solid var(--border-subtle)',
+            fontSize: '13px',
+            color: 'var(--text-secondary)',
+            lineHeight: '1.6',
+          }}>
+            {error || 'Unable to query live PostgreSQL/SQLite database telemetry from the FastAPI backend.'}
+            <div style={{ marginTop: '8px', fontSize: '12px', color: 'var(--text-muted)' }}>
+              If testing locally, start the backend via <code style={{ color: 'var(--cyan)' }}>start.bat</code> or run <code style={{ color: 'var(--cyan)' }}>cd backend && python main.py</code>.
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', alignItems: 'center' }}>
+            {onRetry && (
+              <button onClick={onRetry} className="btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <RefreshCw size={15} />
+                <span>Retry Connection</span>
+              </button>
+            )}
+            {onLoadSnapshot && (
+              <button onClick={onLoadSnapshot} className="btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Activity size={15} color="var(--cyan)" />
+                <span>Load Audited Telemetry Snapshot</span>
+              </button>
+            )}
+            {onNavigateToOutputs && (
+              <button onClick={onNavigateToOutputs} className="btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Award size={15} color="#818CF8" />
+                <span>View Audited Project Outputs</span>
+              </button>
+            )}
+          </div>
+        </div>
       </div>
     );
   }
@@ -45,13 +131,45 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
   return (
     <div style={{ padding: '24px 32px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+      {/* Offline Snapshot Notice Banner */}
+      {isOfflineSnapshot && (
+        <div style={{
+          padding: '12px 18px',
+          borderRadius: '6px',
+          background: 'rgba(255, 170, 0, 0.08)',
+          border: '1px solid rgba(255, 170, 0, 0.3)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          gap: '12px',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <Server size={18} color="var(--amber)" />
+            <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
+              <strong style={{ color: 'var(--amber)' }}>OFFLINE AUDITED SNAPSHOT:</strong> Live database connection is inactive. Showing verified held-out evaluation telemetry.
+            </span>
+          </div>
+          {onRetry && (
+            <button
+              onClick={onRetry}
+              className="btn-secondary"
+              style={{ padding: '4px 12px', fontSize: '11px', height: '28px' }}
+            >
+              <RefreshCw size={12} />
+              <span>Connect Live</span>
+            </button>
+          )}
+        </div>
+      )}
+
       {/* Header Banner */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
         <div>
           <h1 style={{ fontSize: '22px', fontWeight: 700, color: '#FFFFFF', letterSpacing: '-0.02em', display: 'flex', alignItems: 'center', gap: '10px' }}>
             Forensic Telemetry & Operations HUD
-            <span style={{ fontSize: '11px', fontWeight: 600, padding: '2px 8px', borderRadius: '4px', background: 'rgba(0, 229, 255, 0.1)', color: 'var(--cyan)', border: '1px solid rgba(0, 229, 255, 0.25)', fontFamily: 'var(--font-mono)' }}>
-              LIVE DEFENSE
+            <span style={{ fontSize: '11px', fontWeight: 600, padding: '2px 8px', borderRadius: '4px', background: isOfflineSnapshot ? 'rgba(255, 170, 0, 0.1)' : 'rgba(0, 229, 255, 0.1)', color: isOfflineSnapshot ? 'var(--amber)' : 'var(--cyan)', border: isOfflineSnapshot ? '1px solid rgba(255, 170, 0, 0.25)' : '1px solid rgba(0, 229, 255, 0.25)', fontFamily: 'var(--font-mono)' }}>
+              {isOfflineSnapshot ? 'AUDITED SNAPSHOT' : 'LIVE DEFENSE'}
             </span>
           </h1>
           <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginTop: '4px' }}>
