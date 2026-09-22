@@ -1,40 +1,5 @@
 {
-  "installCommand": "cd frontend && npm install",
-  "buildCommand": "cd frontend && npm run build",
-  "outputDirectory": "frontend/dist",
   "rewrites": [
-    {
-      "source": "/api/v1/health",
-      "destination": "/api/health.js"
-    },
-    {
-      "source": "/api/v1/auth/login",
-      "destination": "/api/auth/login.js"
-    },
-    {
-      "source": "/api/v1/auth/register",
-      "destination": "/api/auth/register.js"
-    },
-    {
-      "source": "/api/v1/auth/me",
-      "destination": "/api/auth/me.js"
-    },
-    {
-      "source": "/api/v1/dashboard/project-outputs",
-      "destination": "/api/dashboard/project-outputs.js"
-    },
-    {
-      "source": "/api/v1/dashboard/statistics",
-      "destination": "/api/dashboard/statistics.js"
-    },
-    {
-      "source": "/api/v1/dashboard/recent",
-      "destination": "/api/dashboard/recent.js"
-    },
-    {
-      "source": "/api/health",
-      "destination": "/api/health.js"
-    },
     {
       "source": "/(.*)",
       "destination": "/index.html"
