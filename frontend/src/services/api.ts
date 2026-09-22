@@ -114,9 +114,39 @@ export const api = {
     return data;
   },
 
+  loginAsDemo(): User {
+    const demoUser: User = {
+      id: "usr_demo_analyst_01",
+      email: "analyst@deepshield.ai",
+      full_name: "Chief Forensic Analyst",
+      role: "analyst",
+      is_active: true,
+      created_at: new Date().toISOString(),
+    };
+    localStorage.setItem('deepshield_token', 'demo_jwt_session_token_deepshield_ai');
+    localStorage.setItem('deepshield_demo_user', JSON.stringify(demoUser));
+    return demoUser;
+  },
+
   async getMe(): Promise<User | null> {
     const token = localStorage.getItem('deepshield_token');
     if (!token) return null;
+    if (token === 'demo_jwt_session_token_deepshield_ai') {
+      try {
+        const saved = localStorage.getItem('deepshield_demo_user');
+        if (saved) return JSON.parse(saved);
+      } catch {
+        // Fall through
+      }
+      return {
+        id: "usr_demo_analyst_01",
+        email: "analyst@deepshield.ai",
+        full_name: "Chief Forensic Analyst",
+        role: "analyst",
+        is_active: true,
+        created_at: new Date().toISOString(),
+      };
+    }
     try {
       const res = await safeFetch(`${getApiBaseUrl()}/auth/me`, {
         headers: getAuthHeaders(),
@@ -133,6 +163,7 @@ export const api = {
 
   logout() {
     localStorage.removeItem('deepshield_token');
+    localStorage.removeItem('deepshield_demo_user');
   },
 
   // Dashboard

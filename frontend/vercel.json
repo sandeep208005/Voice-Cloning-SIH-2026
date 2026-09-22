@@ -5,6 +5,18 @@
       "destination": "/api/health.js"
     },
     {
+      "source": "/api/v1/auth/login",
+      "destination": "/api/auth/login.js"
+    },
+    {
+      "source": "/api/v1/auth/register",
+      "destination": "/api/auth/register.js"
+    },
+    {
+      "source": "/api/v1/auth/me",
+      "destination": "/api/auth/me.js"
+    },
+    {
       "source": "/api/v1/dashboard/project-outputs",
       "destination": "/api/dashboard/project-outputs.js"
     },
