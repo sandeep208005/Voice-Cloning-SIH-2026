@@ -130,7 +130,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   const isZeroData = stats.total_analyses === 0;
 
   return (
-    <div style={{ padding: '24px 32px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+    <div className="view-container">
       {/* Offline Snapshot Notice Banner */}
       {isOfflineSnapshot && (
         <div style={{
@@ -164,23 +164,23 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       )}
 
       {/* Header Banner */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
+      <div className="page-header">
         <div>
-          <h1 style={{ fontSize: '22px', fontWeight: 700, color: '#FFFFFF', letterSpacing: '-0.02em', display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <h1 className="page-title">
             Forensic Telemetry & Operations HUD
             <span style={{ fontSize: '11px', fontWeight: 600, padding: '2px 8px', borderRadius: '4px', background: isOfflineSnapshot ? 'rgba(255, 170, 0, 0.1)' : 'rgba(0, 229, 255, 0.1)', color: isOfflineSnapshot ? 'var(--amber)' : 'var(--cyan)', border: isOfflineSnapshot ? '1px solid rgba(255, 170, 0, 0.25)' : '1px solid rgba(0, 229, 255, 0.25)', fontFamily: 'var(--font-mono)' }}>
               {isOfflineSnapshot ? 'AUDITED SNAPSHOT' : 'LIVE DEFENSE'}
             </span>
           </h1>
-          <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginTop: '4px' }}>
+          <p className="page-subtitle">
             Real-time biometric integrity monitoring across multimodal audio, visual, and video channels.
           </p>
         </div>
-        <div style={{ display: 'flex', gap: '10px' }}>
+        <div className="page-actions">
           {onNavigateToOutputs && (
             <button onClick={onNavigateToOutputs} className="btn-secondary">
               <Award size={16} color="var(--cyan)" />
-              <span>Project Outputs & Benchmarks</span>
+              <span>Project Outputs</span>
             </button>
           )}
           <button onClick={onNavigateToLab} className="btn-primary">
@@ -191,11 +191,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       </div>
 
       {/* KPI Cards Row */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
-        gap: '16px',
-      }}>
+      <div className="grid-kpi">
         {/* Total Ingested */}
         <div className="glass-panel" style={{ padding: '16px 18px' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: 'var(--text-muted)' }}>
@@ -284,7 +280,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       {/* Main Grid: Risk Distribution & Trends / Empty State */}
       {isZeroData ? (
         <div className="glass-panel" style={{
-          padding: '48px 24px',
+          padding: '40px 20px',
           textAlign: 'center',
           display: 'flex',
           flexDirection: 'column',
@@ -312,11 +308,11 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               Real-time database audit confirmed 0 recorded analyses. In accordance with zero-mock integrity, no simulated attack curves or fake confidence percentages are generated.
             </p>
           </div>
-          <div style={{ display: 'flex', gap: '12px', marginTop: '8px', flexWrap: 'wrap', justifyContent: 'center' }}>
+          <div className="page-actions" style={{ justifyContent: 'center' }}>
             {onNavigateToOutputs && (
               <button onClick={onNavigateToOutputs} className="btn-secondary">
                 <Award size={16} color="var(--cyan)" />
-                <span>View Audited Project Outputs & Benchmark</span>
+                <span>Audited Benchmark</span>
               </button>
             )}
             <button onClick={onNavigateToLab} className="btn-primary">
@@ -326,7 +322,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           </div>
         </div>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '20px' }}>
+        <div className="grid-2col">
           {/* Risk Level Distribution Panel */}
           <div className="glass-panel" style={{ padding: '20px' }}>
             <h3 style={{ fontSize: '14px', fontWeight: 600, color: '#FFFFFF', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -379,7 +375,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             {stats.trends.length === 0 ? (
               <p style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Not enough data for this chart.</p>
             ) : (
-              <div style={{ display: 'flex', alignItems: 'flex-end', height: '140px', gap: '12px', paddingTop: '16px' }}>
+              <div style={{ display: 'flex', alignItems: 'flex-end', height: '140px', gap: '10px', paddingTop: '16px' }}>
                 {stats.trends.map((t, idx) => {
                   const maxVal = Math.max(...stats.trends.map(x => x.total), 1);
                   const heightPercent = Math.max(8, (t.total / maxVal) * 100);
@@ -405,7 +401,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
       {/* Recent Analyses Stream */}
       <div className="glass-panel" style={{ padding: '20px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px', flexWrap: 'wrap', gap: '8px' }}>
           <h3 style={{ fontSize: '14px', fontWeight: 600, color: '#FFFFFF', display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Clock size={16} color="var(--cyan)" />
             Recent Forensic Evidence Records
@@ -420,8 +416,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             No recent analyses found in the database.
           </div>
         ) : (
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
+          <div className="responsive-table-wrapper">
+            <table style={{ fontSize: '13px' }}>
               <thead>
                 <tr style={{ borderBottom: '1px solid var(--border-subtle)', color: 'var(--text-muted)', textAlign: 'left', fontFamily: 'var(--font-mono)', fontSize: '11px' }}>
                   <th style={{ padding: '10px 12px' }}>ANALYSIS ID</th>
@@ -455,7 +451,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                         {item.media_type}
                       </span>
                     </td>
-                    <td style={{ padding: '12px', color: '#FFFFFF', fontWeight: 500 }}>
+                    <td style={{ padding: '12px', color: '#FFFFFF', fontWeight: 500, maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                       {item.original_filename}
                     </td>
                     <td style={{ padding: '12px', fontFamily: 'var(--font-mono)' }}>

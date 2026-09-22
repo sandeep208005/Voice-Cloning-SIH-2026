@@ -103,32 +103,34 @@ export const RealtimeRadarView: React.FC = () => {
   }, []);
 
   return (
-    <div style={{ padding: '24px 32px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+    <div className="view-container">
       {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <div className="page-header">
         <div>
-          <h1 style={{ fontSize: '22px', fontWeight: 700, color: '#FFFFFF', letterSpacing: '-0.02em', display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <h1 className="page-title">
             Live Surveillance & Radar Stream
             <span style={{ fontSize: '11px', fontWeight: 600, padding: '2px 8px', borderRadius: '4px', background: isStreaming ? 'rgba(16, 185, 129, 0.1)' : 'rgba(255,255,255,0.06)', color: isStreaming ? 'var(--emerald)' : 'var(--text-muted)', border: '1px solid rgba(255,255,255,0.1)', fontFamily: 'var(--font-mono)' }}>
               {isStreaming ? 'STREAMING ACTIVE' : 'RADAR STANDBY'}
             </span>
           </h1>
-          <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginTop: '4px' }}>
+          <p className="page-subtitle">
             Short-window real-time visual and acoustic anomaly detection via WebSocket pipe.
           </p>
         </div>
 
-        {isStreaming ? (
-          <button onClick={stopLiveStream} className="btn-danger">
-            <CameraOff size={16} />
-            <span>Terminate Live Radar</span>
-          </button>
-        ) : (
-          <button onClick={startLiveStream} className="btn-primary">
-            <Camera size={16} />
-            <span>Connect Live Feed</span>
-          </button>
-        )}
+        <div className="page-actions">
+          {isStreaming ? (
+            <button onClick={stopLiveStream} className="btn-danger">
+              <CameraOff size={16} />
+              <span>Terminate Live Radar</span>
+            </button>
+          ) : (
+            <button onClick={startLiveStream} className="btn-primary">
+              <Camera size={16} />
+              <span>Connect Live Feed</span>
+            </button>
+          )}
+        </div>
       </div>
 
       {streamError && (
@@ -149,7 +151,7 @@ export const RealtimeRadarView: React.FC = () => {
       )}
 
       {/* Main Stream Area */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '20px' }}>
+      <div className="grid-2col">
         {/* Video Canvas Box */}
         <div className="glass-panel" style={{ padding: '20px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <div style={{ width: '100%', display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
@@ -162,7 +164,7 @@ export const RealtimeRadarView: React.FC = () => {
           <div style={{
             width: '100%',
             maxWidth: '480px',
-            height: '280px',
+            aspectRatio: '4/3',
             borderRadius: '6px',
             overflow: 'hidden',
             background: '#0B0E15',

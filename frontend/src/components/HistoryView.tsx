@@ -73,30 +73,32 @@ export const HistoryView: React.FC<HistoryViewProps> = ({ onSelectAnalysis }) =>
   };
 
   return (
-    <div style={{ padding: '24px 32px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+    <div className="view-container">
       {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <div className="page-header">
         <div>
-          <h1 style={{ fontSize: '22px', fontWeight: 700, color: '#FFFFFF', letterSpacing: '-0.02em', display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <h1 className="page-title">
             Forensic Audit Logs & Evidence Ledger
             <span style={{ fontSize: '11px', fontWeight: 600, padding: '2px 8px', borderRadius: '4px', background: 'rgba(255, 255, 255, 0.06)', color: 'var(--text-secondary)', border: '1px solid var(--border-subtle)', fontFamily: 'var(--font-mono)' }}>
               {total} TOTAL RECORDS
             </span>
           </h1>
-          <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginTop: '4px' }}>
+          <p className="page-subtitle">
             Database-backed chain of custody for all historical audio, visual, and video forensic evaluations.
           </p>
         </div>
-        <button onClick={() => loadData(page)} className="btn-secondary">
-          <RefreshCw size={14} />
-          <span>Refresh</span>
-        </button>
+        <div className="page-actions">
+          <button onClick={() => loadData(page)} className="btn-secondary">
+            <RefreshCw size={14} />
+            <span>Refresh Logs</span>
+          </button>
+        </div>
       </div>
 
       {/* Filter and Search Toolbar */}
       <div className="glass-panel" style={{ padding: '16px', display: 'flex', flexWrap: 'wrap', gap: '12px', alignItems: 'center', justifyContent: 'space-between' }}>
-        <form onSubmit={handleSearchSubmit} style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1, minWidth: '240px' }}>
-          <div style={{ position: 'relative', width: '100%', maxWidth: '360px' }}>
+        <form onSubmit={handleSearchSubmit} style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: '1 1 260px' }}>
+          <div style={{ position: 'relative', width: '100%' }}>
             <Search size={14} color="var(--text-muted)" style={{ position: 'absolute', left: '10px', top: '10px' }} />
             <input
               type="text"
@@ -120,7 +122,7 @@ export const HistoryView: React.FC<HistoryViewProps> = ({ onSelectAnalysis }) =>
           </button>
         </form>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap', flex: '1 1 auto' }}>
           {/* Media Filter */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: 'var(--text-muted)' }}>
             <span>Media:</span>
@@ -204,8 +206,8 @@ export const HistoryView: React.FC<HistoryViewProps> = ({ onSelectAnalysis }) =>
             </p>
           </div>
         ) : (
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
+          <div className="responsive-table-wrapper">
+            <table style={{ fontSize: '13px' }}>
               <thead>
                 <tr style={{ borderBottom: '1px solid var(--border-subtle)', color: 'var(--text-muted)', textAlign: 'left', fontFamily: 'var(--font-mono)', fontSize: '11px', background: 'rgba(10, 13, 20, 0.5)' }}>
                   <th style={{ padding: '12px 16px' }}>ANALYSIS ID</th>

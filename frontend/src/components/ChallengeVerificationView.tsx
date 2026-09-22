@@ -173,15 +173,17 @@ export const ChallengeVerificationView: React.FC = () => {
   };
 
   return (
-    <div style={{ padding: '24px 32px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+    <div className="view-container">
       {/* Header */}
-      <div>
-        <h1 style={{ fontSize: '22px', fontWeight: 700, color: '#FFFFFF', letterSpacing: '-0.02em' }}>
-          Dynamic Challenge-Response Impersonation Verification
-        </h1>
-        <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginTop: '4px' }}>
-          Mitigates pre-recorded and real-time voice cloning attacks by generating dynamic, phonetically complex vocal challenges.
-        </p>
+      <div className="page-header">
+        <div>
+          <h1 className="page-title">
+            Dynamic Challenge-Response Impersonation Verification
+          </h1>
+          <p className="page-subtitle">
+            Mitigates pre-recorded and real-time voice cloning attacks by generating dynamic, phonetically complex vocal challenges.
+          </p>
+        </div>
       </div>
 
       {errorMsg && (

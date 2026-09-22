@@ -111,22 +111,24 @@ export const ForensicLabView: React.FC<ForensicLabViewProps> = ({
   };
 
   return (
-    <div style={{ padding: '24px 32px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+    <div className="view-container">
       {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <div className="page-header">
         <div>
-          <h1 style={{ fontSize: '22px', fontWeight: 700, color: '#FFFFFF', letterSpacing: '-0.02em' }}>
+          <h1 className="page-title">
             Forensic Ingestion & Multimodal Analysis Lab
           </h1>
-          <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginTop: '4px' }}>
+          <p className="page-subtitle">
             Upload raw suspicious media to execute deterministic neural vocoder, 2D-FFT spectral, and temporal inconsistency forensics.
           </p>
         </div>
         {currentResult && (
-          <button onClick={handleReset} className="btn-secondary">
-            <RefreshCw size={14} />
-            <span>Analyze Another Sample</span>
-          </button>
+          <div className="page-actions">
+            <button onClick={handleReset} className="btn-secondary">
+              <RefreshCw size={14} />
+              <span>Analyze Another Sample</span>
+            </button>
+          </div>
         )}
       </div>
 
@@ -134,7 +136,7 @@ export const ForensicLabView: React.FC<ForensicLabViewProps> = ({
       {!currentResult ? (
         <div className="glass-panel" style={{ padding: '24px' }}>
           {/* Media Type Tabs */}
-          <div style={{ display: 'flex', gap: '8px', marginBottom: '20px' }}>
+          <div className="scrollable-tabs-bar" style={{ marginBottom: '20px' }}>
             {[
               { id: 'audio', label: 'Audio / Voiceprint', icon: Mic },
               { id: 'image', label: 'Image / Visual Forensics', icon: ImageIcon },
@@ -151,7 +153,7 @@ export const ForensicLabView: React.FC<ForensicLabViewProps> = ({
                     alignItems: 'center',
                     gap: '8px',
                     padding: '8px 16px',
-                    borderRadius: '4px',
+                    borderRadius: '6px',
                     background: isSel ? 'rgba(0, 229, 255, 0.12)' : 'rgba(255,255,255,0.03)',
                     border: isSel ? '1px solid var(--cyan)' : '1px solid var(--border-subtle)',
                     color: isSel ? 'var(--cyan)' : 'var(--text-secondary)',
@@ -159,6 +161,8 @@ export const ForensicLabView: React.FC<ForensicLabViewProps> = ({
                     fontSize: '13px',
                     cursor: 'pointer',
                     transition: 'all 0.15s ease',
+                    whiteSpace: 'nowrap',
+                    flexShrink: 0,
                   }}
                 >
                   <Icon size={16} />
@@ -249,7 +253,7 @@ export const ForensicLabView: React.FC<ForensicLabViewProps> = ({
               onClick={handleRunAnalysis}
               disabled={!file || isProcessing}
               className="btn-primary"
-              style={{ padding: '10px 24px', fontSize: '14px' }}
+              style={{ padding: '10px 24px', fontSize: '14px', width: '100%', maxWidth: '300px' }}
             >
               <Cpu size={16} />
               <span>{isProcessing ? 'Analyzing Telemetry...' : 'Trigger Forensic Inspection'}</span>
@@ -282,8 +286,8 @@ export const ForensicLabView: React.FC<ForensicLabViewProps> = ({
           {/* Main Verdict Card */}
           <div className={currentResult.analysis.risk_level === 'high' ? 'glass-panel glass-panel-danger' : 'glass-panel'} style={{ padding: '24px' }}>
             <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
-              <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <div style={{ flex: '1 1 300px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
                   <span className={`badge-${currentResult.analysis.risk_level}`} style={{ fontSize: '12px', padding: '4px 10px' }}>
                     <span className={`status-led status-led-${currentResult.analysis.risk_level === 'high' ? 'crimson' : (currentResult.analysis.risk_level === 'medium' ? 'amber' : 'emerald')}`} />
                     {currentResult.analysis.risk_level.toUpperCase()} RISK
@@ -300,12 +304,12 @@ export const ForensicLabView: React.FC<ForensicLabViewProps> = ({
                     CALIBRATED PROBABILITY
                   </span>
                   <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
-                    ID: {currentResult.analysis.id}
+                    ID: {currentResult.analysis.id.slice(0, 8)}...
                   </span>
                 </div>
 
                 {/* Main Prediction Headline */}
-                <h2 style={{ fontSize: '22px', fontWeight: 800, color: '#FFFFFF', marginTop: '12px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <h2 style={{ fontSize: '22px', fontWeight: 800, color: '#FFFFFF', marginTop: '12px', display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
                   <span>Prediction:</span>
                   <span style={{
                     color: currentResult.analysis.classification === 'uncertain'
@@ -328,11 +332,11 @@ export const ForensicLabView: React.FC<ForensicLabViewProps> = ({
               </div>
 
               {/* Three Stat Gauges: Synthetic Prob, Real Prob, Model Confidence */}
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px' }}>
-                <div style={{ textAlign: 'center', padding: '10px 16px', borderRadius: '6px', background: 'rgba(0,0,0,0.3)', border: '1px solid var(--border-subtle)' }}>
-                  <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>SYNTHETIC PROBABILITY</div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '12px', width: '100%', maxWidth: '480px' }}>
+                <div style={{ textAlign: 'center', padding: '10px 14px', borderRadius: '6px', background: 'rgba(0,0,0,0.3)', border: '1px solid var(--border-subtle)' }}>
+                  <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>SYNTHETIC PROB</div>
                   <div className="font-mono" style={{
-                    fontSize: '26px',
+                    fontSize: '24px',
                     fontWeight: 800,
                     color: currentResult.analysis.synthetic_probability >= 0.5 ? 'var(--crimson)' : 'var(--text-secondary)',
                     marginTop: '4px',
@@ -341,10 +345,10 @@ export const ForensicLabView: React.FC<ForensicLabViewProps> = ({
                   </div>
                 </div>
 
-                <div style={{ textAlign: 'center', padding: '10px 16px', borderRadius: '6px', background: 'rgba(0,0,0,0.3)', border: '1px solid var(--border-subtle)' }}>
-                  <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>REAL PROBABILITY</div>
+                <div style={{ textAlign: 'center', padding: '10px 14px', borderRadius: '6px', background: 'rgba(0,0,0,0.3)', border: '1px solid var(--border-subtle)' }}>
+                  <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>REAL PROB</div>
                   <div className="font-mono" style={{
-                    fontSize: '26px',
+                    fontSize: '24px',
                     fontWeight: 800,
                     color: (currentResult.real_probability ?? (1.0 - currentResult.analysis.synthetic_probability)) >= 0.5 ? 'var(--emerald)' : 'var(--text-secondary)',
                     marginTop: '4px',
@@ -353,9 +357,9 @@ export const ForensicLabView: React.FC<ForensicLabViewProps> = ({
                   </div>
                 </div>
 
-                <div style={{ textAlign: 'center', padding: '10px 16px', borderRadius: '6px', background: 'rgba(0,0,0,0.3)', border: '1px solid var(--border-subtle)' }}>
-                  <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>MODEL CONFIDENCE</div>
-                  <div className="font-mono" style={{ fontSize: '26px', fontWeight: 800, color: 'var(--cyan)', marginTop: '4px' }}>
+                <div style={{ textAlign: 'center', padding: '10px 14px', borderRadius: '6px', background: 'rgba(0,0,0,0.3)', border: '1px solid var(--border-subtle)' }}>
+                  <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>CONFIDENCE</div>
+                  <div className="font-mono" style={{ fontSize: '24px', fontWeight: 800, color: 'var(--cyan)', marginTop: '4px' }}>
                     {(currentResult.analysis.confidence * 100).toFixed(2)}%
                   </div>
                 </div>
@@ -366,7 +370,7 @@ export const ForensicLabView: React.FC<ForensicLabViewProps> = ({
             <div style={{
               display: 'flex',
               flexWrap: 'wrap',
-              gap: '20px',
+              gap: '16px',
               marginTop: '20px',
               paddingTop: '16px',
               borderTop: '1px solid var(--border-subtle)',
@@ -397,7 +401,7 @@ export const ForensicLabView: React.FC<ForensicLabViewProps> = ({
 
           {/* Technical Inspector Tabs */}
           <div className="glass-panel" style={{ padding: '20px' }}>
-            <div style={{ display: 'flex', gap: '12px', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '12px', marginBottom: '16px' }}>
+            <div className="scrollable-tabs-bar" style={{ borderBottom: '1px solid var(--border-subtle)', paddingBottom: '10px', marginBottom: '16px' }}>
               <button
                 onClick={() => setActiveTab('overview')}
                 style={{
@@ -409,6 +413,8 @@ export const ForensicLabView: React.FC<ForensicLabViewProps> = ({
                   cursor: 'pointer',
                   borderBottom: activeTab === 'overview' ? '2px solid var(--cyan)' : '2px solid transparent',
                   paddingBottom: '8px',
+                  whiteSpace: 'nowrap',
+                  flexShrink: 0,
                 }}
               >
                 Forensic Breakdown
@@ -426,9 +432,11 @@ export const ForensicLabView: React.FC<ForensicLabViewProps> = ({
                     cursor: 'pointer',
                     borderBottom: activeTab === 'gradcam' ? '2px solid var(--cyan)' : '2px solid transparent',
                     paddingBottom: '8px',
+                    whiteSpace: 'nowrap',
+                    flexShrink: 0,
                   }}
                 >
-                  Grad-CAM Spatial Heatmap
+                  Grad-CAM Heatmap
                 </button>
               )}
 
@@ -444,6 +452,8 @@ export const ForensicLabView: React.FC<ForensicLabViewProps> = ({
                     cursor: 'pointer',
                     borderBottom: activeTab === 'spectrogram' ? '2px solid var(--cyan)' : '2px solid transparent',
                     paddingBottom: '8px',
+                    whiteSpace: 'nowrap',
+                    flexShrink: 0,
                   }}
                 >
                   Spectrogram Heatmap
@@ -462,9 +472,11 @@ export const ForensicLabView: React.FC<ForensicLabViewProps> = ({
                     cursor: 'pointer',
                     borderBottom: activeTab === 'frames' ? '2px solid var(--cyan)' : '2px solid transparent',
                     paddingBottom: '8px',
+                    whiteSpace: 'nowrap',
+                    flexShrink: 0,
                   }}
                 >
-                  Per-Frame Anomaly Timeline ({currentResult.frame_metrics.length} Frames)
+                  Timeline ({currentResult.frame_metrics.length} Frames)
                 </button>
               )}
 
@@ -479,6 +491,8 @@ export const ForensicLabView: React.FC<ForensicLabViewProps> = ({
                   cursor: 'pointer',
                   borderBottom: activeTab === 'technical' ? '2px solid var(--cyan)' : '2px solid transparent',
                   paddingBottom: '8px',
+                  whiteSpace: 'nowrap',
+                  flexShrink: 0,
                 }}
               >
                 Technical Details
@@ -495,9 +509,11 @@ export const ForensicLabView: React.FC<ForensicLabViewProps> = ({
                   cursor: 'pointer',
                   borderBottom: activeTab === 'raw' ? '2px solid var(--cyan)' : '2px solid transparent',
                   paddingBottom: '8px',
+                  whiteSpace: 'nowrap',
+                  flexShrink: 0,
                 }}
               >
-                Raw Telemetry JSON
+                Raw JSON
               </button>
             </div>
 

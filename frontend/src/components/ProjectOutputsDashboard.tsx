@@ -140,7 +140,7 @@ export const ProjectOutputsDashboard: React.FC<ProjectOutputsDashboardProps> = (
   }
 
   return (
-    <div style={{ padding: '24px 32px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+    <div className="view-container">
       {/* Offline Audited Fallback Banner */}
       {isAuditedFallback && (
         <div style={{
@@ -172,10 +172,10 @@ export const ProjectOutputsDashboard: React.FC<ProjectOutputsDashboardProps> = (
       )}
 
       {/* Header Banner */}
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
+      <div className="page-header">
         <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <h1 style={{ fontSize: '22px', fontWeight: 700, color: '#FFFFFF', letterSpacing: '-0.02em' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+            <h1 className="page-title">
               DeepShield AI — System Outputs & Benchmark Intelligence
             </h1>
             <span style={{
@@ -191,15 +191,15 @@ export const ProjectOutputsDashboard: React.FC<ProjectOutputsDashboardProps> = (
               OFFICIAL BENCHMARK
             </span>
           </div>
-          <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginTop: '4px', maxWidth: '780px' }}>
+          <p className="page-subtitle">
             Empirical scientific outputs, held-out model evaluation metrics, anti-leakage dataset distributions, and cross-generator generalization audit records.
           </p>
         </div>
 
-        <div style={{ display: 'flex', gap: '12px' }}>
+        <div className="page-actions">
           <button onClick={handleExportJson} className="btn-secondary">
             <Download size={15} />
-            <span>Export Audit Certificate (JSON)</span>
+            <span>Export Certificate (JSON)</span>
           </button>
           {onNavigateToLab && (
             <button onClick={onNavigateToLab} className="btn-primary">
@@ -211,11 +211,7 @@ export const ProjectOutputsDashboard: React.FC<ProjectOutputsDashboardProps> = (
       </div>
 
       {/* Executive KPI Grid */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
-        gap: '16px',
-      }}>
+      <div className="grid-kpi">
         {/* Detection Accuracy */}
         <div className="glass-panel" style={{ padding: '18px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: 'var(--text-muted)' }}>
@@ -319,8 +315,8 @@ export const ProjectOutputsDashboard: React.FC<ProjectOutputsDashboardProps> = (
           </span>
         </div>
 
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
+        <div className="responsive-table-wrapper">
+          <table style={{ fontSize: '13px' }}>
             <thead>
               <tr style={{ borderBottom: '1px solid var(--border-subtle)', color: 'var(--text-muted)', textAlign: 'left', fontFamily: 'var(--font-mono)', fontSize: '11px' }}>
                 <th style={{ padding: '12px 14px' }}>EVALUATION PARAMETER</th>
@@ -424,7 +420,7 @@ export const ProjectOutputsDashboard: React.FC<ProjectOutputsDashboardProps> = (
         </div>
 
         {/* Tab Switcher */}
-        <div style={{ display: 'flex', gap: '8px', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '12px', marginBottom: '20px' }}>
+        <div className="scrollable-tabs-bar" style={{ borderBottom: '1px solid var(--border-subtle)', paddingBottom: '12px', marginBottom: '20px' }}>
           {[
             { id: 'image', label: 'Image & Visual Forensics', icon: Eye },
             { id: 'audio', label: 'Audio & Voice Clone Forensics', icon: Mic },

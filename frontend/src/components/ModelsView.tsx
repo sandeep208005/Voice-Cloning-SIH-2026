@@ -15,15 +15,17 @@ export const ModelsView: React.FC = () => {
   }, []);
 
   return (
-    <div style={{ padding: '24px 32px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+    <div className="view-container">
       {/* Header */}
-      <div>
-        <h1 style={{ fontSize: '22px', fontWeight: 700, color: '#FFFFFF', letterSpacing: '-0.02em', display: 'flex', alignItems: 'center', gap: '10px' }}>
-          Neural Forensic Model Registry & Provenance
-        </h1>
-        <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginTop: '4px' }}>
-          Documented signal processing architectures, frequency-domain extractors, and calibrated Bayesian risk engines.
-        </p>
+      <div className="page-header">
+        <div>
+          <h1 className="page-title">
+            Neural Forensic Model Registry & Provenance
+          </h1>
+          <p className="page-subtitle">
+            Documented signal processing architectures, frequency-domain extractors, and calibrated Bayesian risk engines.
+          </p>
+        </div>
       </div>
 
       {/* Scientific Integrity Disclaimer */}
@@ -48,7 +50,7 @@ export const ModelsView: React.FC = () => {
           QUERYING MODEL REGISTRY...
         </div>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '20px' }}>
+        <div className="grid-2col">
           {models.map((m) => (
             <div key={m.name} className="glass-panel" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>

@@ -144,8 +144,8 @@ export const App: React.FC = () => {
   }
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--bg-void)' }}>
-      {/* Sidebar Navigation */}
+    <div className="app-shell">
+      {/* Navigation (Desktop Sidebar, Mobile Header, Drawer & Bottom Bar) */}
       <Navigation
         activeTab={activeTab}
         setActiveTab={setActiveTab}
@@ -157,7 +157,7 @@ export const App: React.FC = () => {
       />
 
       {/* Main View Area */}
-      <main style={{ flex: 1, overflowY: 'auto', minWidth: 0 }}>
+      <main className="main-content">
         {activeTab === 'dashboard' && (
           <DashboardView
             stats={stats}
