@@ -105,6 +105,14 @@ $$\text{Log-Odds} = \ln\frac{P(\text{Fake})}{1 - P(\text{Fake})} + \sum_{m \in \
 
 ## Quickstart & Installation
 
+### Render deployment
+
+The frontend and FastAPI backend are separate services. In the frontend service's Render environment, set `VITE_API_URL` to the public backend service URL (for example, `https://your-api.onrender.com`; do not include `/api/v1`). Redeploy the frontend after setting it because Vite embeds this value at build time. The app will append `/api/v1` automatically.
+
+In the backend service, set `CORS_ORIGINS` to a JSON array containing the exact deployed frontend origin, for example `["https://your-app.onrender.com"]`. The backend must start with `backend` as its working directory and serve `main:app` (for example, `uvicorn main:app --host 0.0.0.0 --port $PORT`).
+
+If sign-in reports an unexpected response format, check the login request in the browser's Network panel: it should go to `https://your-api.onrender.com/api/v1/auth/login` and return JSON. A request sent to the frontend domain usually means `VITE_API_URL` was missing when the frontend was built.
+
 ### Prerequisites
 - Python 3.10+ (Tested on Python 3.14)
 - Node.js 18+ (Tested on Node v26)

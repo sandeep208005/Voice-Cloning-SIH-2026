@@ -82,6 +82,20 @@ async function safeFetch(input: RequestInfo | URL, init?: RequestInit): Promise<
   }
 }
 
+async function readJsonResponse<T>(res: Response, operation: string): Promise<T> {
+  const body = await res.text();
+  if (!body.trim()) {
+    throw new Error(`${operation} failed: the backend returned an empty response (HTTP ${res.status}). Check that VITE_API_URL points to your deployed backend.`);
+  }
+
+  try {
+    return JSON.parse(body) as T;
+  } catch {
+    const contentType = res.headers.get('content-type') || 'unknown content type';
+    throw new Error(`${operation} failed: expected JSON from ${getApiBaseUrl()} but received ${contentType} (HTTP ${res.status}). Set VITE_API_URL to your deployed backend URL, then rebuild and redeploy the frontend.`);
+  }
+}
+
 export const api = {
   // Authentication
   async register(email: string, password: string, fullName: string, role = 'analyst'): Promise<{ access_token: string; user: User }> {
@@ -94,7 +108,7 @@ export const api = {
       const err = await res.json().catch(() => ({}));
       throw new Error(parseErrorDetail(err, 'Registration failed.'));
     }
-    const data = await res.json();
+    const data = await readJsonResponse<{ access_token: string; user: User }>(res, 'Registration');
     localStorage.setItem('deepshield_token', data.access_token);
     return data;
   },
@@ -109,7 +123,7 @@ export const api = {
       const err = await res.json().catch(() => ({}));
       throw new Error(parseErrorDetail(err, 'Invalid email or password.'));
     }
-    const data = await res.json();
+    const data = await readJsonResponse<{ access_token: string; user: User }>(res, 'Sign in');
     localStorage.setItem('deepshield_token', data.access_token);
     return data;
   },
