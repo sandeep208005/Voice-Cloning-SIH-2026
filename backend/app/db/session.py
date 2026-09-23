@@ -4,7 +4,7 @@ from sqlalchemy.orm import sessionmaker, Session
 from app.core.config import settings
 
 def get_database_url() -> str:
-    url = settings.DATABASE_URL
+    url = settings.get_database_uri()
     # Render and other cloud providers often provide 'postgres://' which SQLAlchemy requires as 'postgresql://'
     if url.startswith("postgres://"):
         url = url.replace("postgres://", "postgresql://", 1)

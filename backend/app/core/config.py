@@ -17,6 +17,18 @@ class Settings(BaseSettings):
 
     # Database
     DATABASE_URL: str = "sqlite:///./deepshield.db"
+    POSTGRES_SERVER: str = ""
+    POSTGRES_PORT: int = 5432
+    POSTGRES_USER: str = ""
+    POSTGRES_PASSWORD: str = ""
+    POSTGRES_DB: str = ""
+
+    def get_database_uri(self) -> str:
+        if self.DATABASE_URL and not self.DATABASE_URL.startswith("sqlite:///./deepshield.db"):
+            return self.DATABASE_URL
+        if self.POSTGRES_SERVER and self.POSTGRES_USER:
+            return f"postgresql://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.POSTGRES_SERVER}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
+        return self.DATABASE_URL
 
     # Storage & Uploads
     STORAGE_DIR: str = "./uploads"
