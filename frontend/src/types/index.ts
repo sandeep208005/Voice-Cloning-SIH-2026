@@ -92,20 +92,46 @@ export interface RecentAnalysisItem {
   created_at: string;
 }
 
+export interface VerificationRecord {
+  id: string;
+  event_id: string;
+  session_token?: string;
+  created_at: string;
+  source: string;
+  person_identity: string;
+  detection_type: string;
+  risk_level: 'low' | 'medium' | 'high' | 'critical';
+  confidence_score: number;
+  verification_status: 'pending' | 'verified' | 'failed' | 'challenge_issued' | 'blocked';
+  challenge_phrase?: string;
+  challenge_response?: string;
+  challenge_result?: 'passed' | 'failed' | 'pending';
+  similarity_score: number;
+  voice_authenticity_score: number;
+  evidence_id?: string;
+  final_decision: string;
+}
+
 export interface ChallengeGenerateResponse {
   session_token: string;
   phrase: string;
   expires_at: string;
   instructions: string;
+  event_id?: string;
+  source?: string;
+  person_identity?: string;
 }
 
 export interface ChallengeSubmitResponse {
   session_token: string;
+  event_id?: string;
   status: 'verified' | 'failed';
   similarity_score: number;
   voice_authenticity_score: number;
   is_authentic: boolean;
   explanation: string;
+  verification_status?: string;
+  final_decision?: string;
 }
 
 export interface ModelInfo {

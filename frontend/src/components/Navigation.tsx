@@ -14,7 +14,10 @@ import {
   X,
   Check,
   Menu,
-  MoreHorizontal
+  MoreHorizontal,
+  AlertOctagon,
+  Brain,
+  BarChart3
 } from 'lucide-react';
 import { User, SystemHealth } from '../types';
 import { getCustomApiUrl, setCustomApiUrl, getApiBaseUrl } from '../services/api';
@@ -45,20 +48,24 @@ export const Navigation: React.FC<NavigationProps> = ({
 
   const navItems = [
     { id: 'dashboard', label: 'Dashboard HUD', icon: Activity },
-    { id: 'outputs', label: 'Project Outputs', icon: Award },
+    { id: 'analytics', label: 'Dynamic Analytics', icon: BarChart3 },
+    { id: 'threats', label: 'Threat Intelligence', icon: ShieldAlert },
+    { id: 'incidents', label: 'Incident Response', icon: AlertOctagon },
+    { id: 'explainability', label: 'AI Explainability (XAI)', icon: Brain },
     { id: 'lab', label: 'Forensic Lab', icon: UploadCloud },
     { id: 'realtime', label: 'Live Radar', icon: Radio },
     { id: 'challenge', label: 'Challenge Studio', icon: CheckCircle2 },
+    { id: 'outputs', label: 'Project Outputs', icon: Award },
     { id: 'history', label: 'Forensic Logs', icon: Database },
     { id: 'models', label: 'Model Registry', icon: Cpu },
   ];
 
   const bottomNavItems = [
     { id: 'dashboard', label: 'HUD', icon: Activity },
-    { id: 'outputs', label: 'Outputs', icon: Award },
+    { id: 'threats', label: 'Threats', icon: ShieldAlert },
+    { id: 'incidents', label: 'Incidents', icon: AlertOctagon },
+    { id: 'explainability', label: 'XAI', icon: Brain },
     { id: 'lab', label: 'Lab', icon: UploadCloud },
-    { id: 'realtime', label: 'Radar', icon: Radio },
-    { id: 'history', label: 'Logs', icon: Database },
   ];
 
   const handleNavClick = (id: string) => {
@@ -544,9 +551,9 @@ export const Navigation: React.FC<NavigationProps> = ({
         {/* Extra Tab Menu Trigger */}
         <button
           onClick={() => setIsMobileDrawerOpen(true)}
-          className={`mobile-bottom-nav-item ${['challenge', 'models'].includes(activeTab) ? 'active' : ''}`}
+          className={`mobile-bottom-nav-item ${!bottomNavItems.some(i => i.id === activeTab) ? 'active' : ''}`}
         >
-          <MoreHorizontal size={18} color={['challenge', 'models'].includes(activeTab) ? 'var(--cyan)' : 'var(--text-muted)'} />
+          <MoreHorizontal size={18} color={!bottomNavItems.some(i => i.id === activeTab) ? 'var(--cyan)' : 'var(--text-muted)'} />
           <span>More</span>
         </button>
       </nav>

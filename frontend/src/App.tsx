@@ -1,6 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Navigation } from './components/Navigation';
 import { DashboardView } from './components/DashboardView';
+import { DynamicAnalyticsView } from './components/DynamicAnalyticsView';
+import { ThreatIntelView } from './components/ThreatIntelView';
+import { IncidentResponseView } from './components/IncidentResponseView';
+import { ExplainabilityView } from './components/ExplainabilityView';
 import { ForensicLabView } from './components/ForensicLabView';
 import { RealtimeRadarView } from './components/RealtimeRadarView';
 import { ChallengeVerificationView } from './components/ChallengeVerificationView';
@@ -25,6 +29,12 @@ export const App: React.FC = () => {
   const [isOfflineSnapshot, setIsOfflineSnapshot] = useState(false);
   const [selectedAnalysisDetail, setSelectedAnalysisDetail] = useState<AnalysisDetail | null>(null);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
+
+  const [pendingVerificationEvent, setPendingVerificationEvent] = useState<{
+    eventId: string;
+    identity: string;
+    riskLevel: string;
+  } | null>(null);
 
   const fetchDashboardData = useCallback(async () => {
     setLoadingStats(true);
@@ -173,6 +183,22 @@ export const App: React.FC = () => {
           />
         )}
 
+        {activeTab === 'analytics' && (
+          <DynamicAnalyticsView />
+        )}
+
+        {activeTab === 'threats' && (
+          <ThreatIntelView />
+        )}
+
+        {activeTab === 'incidents' && (
+          <IncidentResponseView />
+        )}
+
+        {activeTab === 'explainability' && (
+          <ExplainabilityView />
+        )}
+
         {activeTab === 'outputs' && (
           <ProjectOutputsDashboard
             onNavigateToLab={() => { setSelectedAnalysisDetail(null); setActiveTab('lab'); }}
@@ -188,11 +214,21 @@ export const App: React.FC = () => {
         )}
 
         {activeTab === 'realtime' && (
-          <RealtimeRadarView />
+          <RealtimeRadarView
+            onTriggerVerification={(eventId, identity, riskLevel) => {
+              setPendingVerificationEvent({ eventId, identity, riskLevel });
+              setActiveTab('challenge');
+            }}
+          />
         )}
 
         {activeTab === 'challenge' && (
-          <ChallengeVerificationView />
+          <ChallengeVerificationView
+            initialEventId={pendingVerificationEvent?.eventId}
+            initialIdentity={pendingVerificationEvent?.identity}
+            initialRiskLevel={pendingVerificationEvent?.riskLevel}
+            onClearEvent={() => setPendingVerificationEvent(null)}
+          />
         )}
 
         {activeTab === 'history' && (

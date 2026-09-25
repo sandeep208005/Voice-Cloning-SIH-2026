@@ -8,7 +8,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import JSONResponse
 
 from app.core.config import settings
-from app.db.session import engine
+from app.db.session import engine, ensure_database_schema_compat
 from app.models import Base
 from app.api.v1 import api_router
 from app.api.v1.realtime import router as realtime_router
@@ -19,6 +19,7 @@ async def lifespan(app: FastAPI):
     """Application startup and shutdown events."""
     # Initialize database tables
     Base.metadata.create_all(bind=engine)
+    ensure_database_schema_compat()
     os.makedirs(settings.STORAGE_DIR, exist_ok=True)
     yield
 

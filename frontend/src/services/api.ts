@@ -4,6 +4,7 @@ import {
   AnalysisDetail,
   ChallengeGenerateResponse,
   ChallengeSubmitResponse,
+  VerificationRecord,
   ModelInfo,
   SystemHealth,
   User,
@@ -257,22 +258,45 @@ export const api = {
     if (!res.ok) throw new Error('Failed to purge analysis record.');
   },
 
-  // Dynamic Challenge-Response
-  async generateChallenge(): Promise<ChallengeGenerateResponse> {
-    const res = await safeFetch(`${getApiBaseUrl()}/verification/challenge`, {
+  // Dynamic Challenge-Response & Verification Persistence
+  async generateChallenge(options: {
+    event_id?: string;
+    source?: string;
+    person_identity?: string;
+    detection_type?: string;
+    risk_level?: string;
+    confidence_score?: number;
+    evidence_id?: string;
+  } = {}): Promise<ChallengeGenerateResponse> {
+    const query = new URLSearchParams();
+    if (options.event_id) query.set('event_id', options.event_id);
+    if (options.source) query.set('source', options.source);
+    if (options.person_identity) query.set('person_identity', options.person_identity);
+    if (options.detection_type) query.set('detection_type', options.detection_type);
+    if (options.risk_level) query.set('risk_level', options.risk_level);
+    if (options.confidence_score !== undefined) query.set('confidence_score', options.confidence_score.toString());
+    if (options.evidence_id) query.set('evidence_id', options.evidence_id);
+
+    const qs = query.toString() ? `?${query.toString()}` : '';
+    const res = await safeFetch(`${getApiBaseUrl()}/verification/challenge${qs}`, {
       method: 'POST',
-      headers: getAuthHeaders(),
+      headers: {
+        ...getAuthHeaders(),
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(options),
     });
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
-      throw new Error(parseErrorDetail(err, 'Failed to generate challenge.'));
+      throw new Error(parseErrorDetail(err, 'Failed to generate dynamic challenge.'));
     }
     return res.json();
   },
 
-  async submitChallenge(sessionToken: string, audioBlob: Blob): Promise<ChallengeSubmitResponse> {
+  async submitChallenge(sessionToken: string, audioBlob: Blob, eventId?: string): Promise<ChallengeSubmitResponse> {
     const formData = new FormData();
     formData.append('session_token', sessionToken);
+    if (eventId) formData.append('event_id', eventId);
     const ext = audioBlob.type.includes('wav') ? 'wav' : (audioBlob.type.includes('ogg') ? 'ogg' : 'webm');
     formData.append('file', audioBlob, `response.${ext}`);
 
@@ -285,6 +309,52 @@ export const api = {
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
       throw new Error(parseErrorDetail(err, 'Challenge verification failed.'));
+    }
+    return res.json();
+  },
+
+  async getVerificationHistory(limit = 50): Promise<VerificationRecord[]> {
+    const res = await safeFetch(`${getApiBaseUrl()}/verification/history?limit=${limit}`, {
+      headers: getAuthHeaders(),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(parseErrorDetail(err, 'Failed to fetch verification history.'));
+    }
+    return res.json();
+  },
+
+  async recordRadarEvent(payload: {
+    event_id?: string;
+    source?: string;
+    person_identity?: string;
+    detection_type?: string;
+    risk_level: string;
+    confidence_score: number;
+    evidence_id?: string;
+    details?: any;
+  }): Promise<VerificationRecord> {
+    const res = await safeFetch(`${getApiBaseUrl()}/verification/event`, {
+      method: 'POST',
+      headers: {
+        ...getAuthHeaders(),
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(parseErrorDetail(err, 'Failed to record radar surveillance event.'));
+    }
+    return res.json();
+  },
+
+  async getVerificationEvent(eventId: string): Promise<VerificationRecord> {
+    const res = await safeFetch(`${getApiBaseUrl()}/verification/event/${encodeURIComponent(eventId)}`, {
+      headers: getAuthHeaders(),
+    });
+    if (!res.ok) {
+      throw new Error(`Verification event ${eventId} not found.`);
     }
     return res.json();
   },
