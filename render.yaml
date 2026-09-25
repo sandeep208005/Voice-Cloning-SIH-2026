@@ -1,0 +1,50 @@
+services:
+  # FastAPI Multimodal AI Backend Web Service
+  - type: web
+    name: voice-cloning-deepshield
+    runtime: docker
+    dockerfilePath: Dockerfile
+    dockerContext: .
+    plan: free
+    region: ohio
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: deepshield_db_2ygo
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: ALGORITHM
+        value: HS256
+      - key: ACCESS_TOKEN_EXPIRE_MINUTES
+        value: "1440"
+      - key: AI_DEVICE
+        value: cpu
+      - key: CORS_ORIGINS
+        value: '["*"]'
+      - key: STORAGE_DIR
+        value: ./uploads
+
+  # Frontend Static Site
+  - type: web
+    name: deepshield-ai-frontend
+    runtime: static
+    buildCommand: cd frontend && npm install && npm run build
+    staticPublishPath: frontend/dist
+    plan: free
+    region: ohio
+    envVars:
+      - key: VITE_API_URL
+        fromService:
+          type: web
+          name: voice-cloning-deepshield
+          property: url
+
+databases:
+  # PostgreSQL Database
+  - name: deepshield_db_2ygo
+    plan: free
+    region: ohio
+    user: deepshield_user
